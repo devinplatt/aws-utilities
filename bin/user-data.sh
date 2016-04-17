@@ -2,7 +2,7 @@
 # Note that we need to run /home/ubuntu/anaconda2/bin/python
 # and NOT /usr/bin/python, so that imports work.
 PARALLEL=1  # Number of parallel processes to run.
-REPOS = "/home/ubuntu/repos/"
+REPOS="/home/ubuntu/repos/"
 SCRIPT="/home/ubuntu/repos/aws_utilities/bin/get_jobs.py"
 COMMAND="/home/ubuntu/anaconda2/bin/python /home/ubuntu/repos/aws_utilities/bin/extract_one.py"
 #PARAMS="<working directory> <SQS queue> <AWS region> <command>"
