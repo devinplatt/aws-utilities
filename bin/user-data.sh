@@ -11,6 +11,7 @@ PARAMS="/var/tmp platt-feature-extraction us-west-1 $COMMAND"
 cd $REPOS
 git clone https://github.com/devinplatt/aws-utilities.git
 cd /
+export PYTHONPATH=$REPOS:$PYTHONPATH
 for i in $(seq $PARALLEL)
 do
     LOGFILE=${SCRIPT}.$i.log

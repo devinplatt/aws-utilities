@@ -9,7 +9,7 @@ import random
 import joblib
 import os
 
-from core_utils import timeit
+from aws_utilities.utils.core_utils import timeit
 
 # We'll build the feature pipeline object here
 # This is based on:

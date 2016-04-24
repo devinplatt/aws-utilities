@@ -14,8 +14,7 @@ import boto.sqs
 from boto.s3.key import Key
 from boto.sqs.message import Message
 
-from core_utils import ensure_dirs_exist
-from core_utils import timeit
+from aws_utilities.utils.core_utils import timeit, ensure_dirs_exist
 
 
 def get_jobs(work_dir, sqs_queue_name, aws_region, command):

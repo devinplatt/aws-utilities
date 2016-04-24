@@ -1,8 +1,7 @@
 #!/usr/bin/env python
-
 import sys
 
-import extract_features
+from aws_utilities.utils import extract_features
 
 def main():
     input_mp3_file_name = sys.argv[1]
