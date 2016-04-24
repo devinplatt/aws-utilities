@@ -3,13 +3,13 @@
 # and NOT /usr/bin/python, so that imports work.
 PARALLEL=1  # Number of parallel processes to run.
 REPOS="/home/ubuntu/repos/"
-SCRIPT="/home/ubuntu/repos/aws_utilities/bin/get_jobs.py"
-COMMAND="/home/ubuntu/anaconda2/bin/python /home/ubuntu/repos/aws_utilities/bin/extract_one.py"
+SCRIPT="/home/ubuntu/repos/extraction_worker/bin/get_jobs.py"
+COMMAND="/home/ubuntu/anaconda2/bin/python /home/ubuntu/repos/extraction_worker/bin/extract_one.py"
 #PARAMS="<working directory> <SQS queue> <AWS region> <command>"
 PARAMS="/var/tmp platt-feature-extraction us-west-1 $COMMAND"
 #yum update -y  # Does not seem to be working.
 cd $REPOS
-git clone https://github.com/devinplatt/aws-utilities.git
+git clone https://github.com/devinplatt/extraction_worker.git
 cd /
 export PYTHONPATH=$REPOS:$PYTHONPATH
 for i in $(seq $PARALLEL)
