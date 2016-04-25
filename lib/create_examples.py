@@ -77,7 +77,7 @@ def create_one(input_mel_file_name, output_examples_file_name, label):
     mel = joblib.load(input_mel_file_name)
     examples, labels, parameters = mel_to_example(mel, label)
     # Using compress=1 to make sure it is stored as one file.
-    joblib.dump((examples, labels, parameters), output_feature_file_name,
+    joblib.dump((examples, labels, parameters), output_examples_file_name,
                 compress=1)
 
 
