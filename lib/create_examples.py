@@ -42,7 +42,7 @@ from extraction_worker.lib.core import timeit
 #           length, and can be computed as:
 #
 #               frame duration = hop / sr
-%timeit
+@timeit
 def mel_to_example(mel, label,
                    approximate_window_length_in_ms=500,
                    verbose=False):
