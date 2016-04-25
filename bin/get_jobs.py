@@ -15,10 +15,11 @@ from boto.s3.key import Key
 from boto.sqs.message import Message
 
 from extraction_worker.lib.core import timeit, ensure_dirs_exist
-from extraction_worker.lib.extract_features import try_extract_one
+from extraction_worker.lib import extract_features
+from extraction_worker.lib import create_examples
 
 
-def get_jobs(work_dir, sqs_queue_name, aws_region, command):
+def get_jobs(work_dir, sqs_queue_name, aws_region):
     s3 = boto.s3.connect_to_region(aws_region)
     sqs = boto.sqs.connect_to_region(aws_region)
     sqs_queue =  sqs.lookup(sqs_queue_name)
@@ -31,19 +32,21 @@ def get_jobs(work_dir, sqs_queue_name, aws_region, command):
                 job = json.loads(m.get_body())
                 print("Message received: '%s'" % job)
                 action = job[0]
-                if action == 'process':
+                if action in ['extract_features', 'create_examples']:
                     s3_bucket_name = job[1]
                     s3_input_key = job[2]
                     s3_output_key = job[3]
                     status = process(s3, s3_bucket_name, s3_input_key,
-                                     s3_output_key, work_dir, command)
+                                     s3_output_key, work_dir, action)
                     if (status):
                         print("Message processed correctly ...")
                         m.delete()
                         print("Message deleted")
+                else:
+                    print('Falied to find option for action: {}'.format(action))
 
 
-def process(s3, s3_bucket_name, s3_input_key, s3_output_key, work_dir, command):
+def process(s3, s3_bucket_name, s3_input_key, s3_output_key, work_dir, action):
     s3Bucket = s3.get_bucket(s3_bucket_name)
     local_input_path = os.path.join(work_dir, s3_input_key)
     local_output_path = os.path.join(work_dir, s3_output_key)
@@ -52,7 +55,15 @@ def process(s3, s3_bucket_name, s3_input_key, s3_output_key, work_dir, command):
     print("Downloading %s from s3://%s/%s ..." % (local_input_path, s3_bucket_name, s3_input_key))
     key = s3Bucket.get_key(s3_input_key)
     key.get_contents_to_filename(local_input_path)
-    success = try_extract_one(local_input_path, local_output_path)
+    if action == 'extract_features':
+        success = extract_features.try_extract_one(local_input_path,
+                                                   local_output_path)
+    elif action == 'create_examples':
+        success = create_examples.try_extract_one(local_input_path,
+                                                  local_output_path)
+    else:
+        print('Falied to find function for action: {}'.format(action))
+        success = False
     if not success:
         print('Falied to extract features for: {}'.format(local_input_path))
         return False
@@ -71,13 +82,12 @@ def signal_handler(signal, frame):
 
 def main():
     if len(argv) < 4:
-        print("Usage: %s <working directory> <SQS queue> <AWS region> <command>" % argv[0])
+        print("Usage: %s <working directory> <SQS queue> <AWS region>" % argv[0])
         exit(1)
     work_dir = argv[1]
     sqs_queue_name = argv[2]
     aws_region = argv[3]
-    command = argv[4]
-    get_jobs(work_dir, sqs_queue_name, aws_region, command)
+    get_jobs(work_dir, sqs_queue_name, aws_region)
 
 if __name__ == '__main__':
 

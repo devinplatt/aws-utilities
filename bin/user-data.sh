@@ -4,9 +4,8 @@
 PARALLEL=1  # Number of parallel processes to run.
 REPOS="/home/ubuntu/repos/"
 SCRIPT="/home/ubuntu/repos/extraction_worker/bin/get_jobs.py"
-COMMAND="/home/ubuntu/anaconda2/bin/python /home/ubuntu/repos/extraction_worker/bin/extract_one.py"
 #PARAMS="<working directory> <SQS queue> <AWS region> <command>"
-PARAMS="/var/tmp platt-feature-extraction us-west-1 $COMMAND"
+PARAMS="/var/tmp platt-feature-extraction us-west-1"
 #yum update -y  # Does not seem to be working.
 cd $REPOS
 git clone https://github.com/devinplatt/extraction_worker.git
