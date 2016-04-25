@@ -15,6 +15,7 @@ from boto.s3.key import Key
 from boto.sqs.message import Message
 
 from extraction_worker.lib.core import timeit, ensure_dirs_exist
+from extraction_worker.lib.extract_features import try_extract_one
 
 
 def get_jobs(work_dir, sqs_queue_name, aws_region, command):
@@ -40,7 +41,8 @@ def get_jobs(work_dir, sqs_queue_name, aws_region, command):
                         print("Message processed correctly ...")
                         m.delete()
                         print("Message deleted")
-                
+
+
 def process(s3, s3_bucket_name, s3_input_key, s3_output_key, work_dir, command):
     s3Bucket = s3.get_bucket(s3_bucket_name)
     local_input_path = os.path.join(work_dir, s3_input_key)
@@ -50,21 +52,22 @@ def process(s3, s3_bucket_name, s3_input_key, s3_output_key, work_dir, command):
     print("Downloading %s from s3://%s/%s ..." % (local_input_path, s3_bucket_name, s3_input_key))
     key = s3Bucket.get_key(s3_input_key)
     key.get_contents_to_filename(local_input_path)
-    full_command = [command, local_input_path, local_output_path]
-    print("Executing: %s" % ' '.join(full_command))
-    returncode = subprocess.call(full_command)
-    if returncode != 0:
-        print("Return Code not '0'!")
+    success = try_extract_one(input_mp3_file_name, output_feature_file_name)
+    if not success:
+        print('Falied to extract features for: {}'.format(input_mp3_file_name))
         return False
     print("Uploading %s to s3://%s/%s ..." % (local_output_path, s3_bucket_name, s3_output_key))
     key = Key(s3Bucket)
     key.key = s3_output_key
     key.set_contents_from_filename(local_output_path)
+    # TODO: delete local mp3 file!
     return True
+
 
 def signal_handler(signal, frame):
     print("Exiting...")
     exit(0)
+
 
 def main():
     if len(argv) < 4:

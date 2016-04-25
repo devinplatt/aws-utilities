@@ -97,3 +97,13 @@ def extract_one(input_mp3_file_name, output_feature_file_name):
     features = features[0]
     # Using compress=1 to make sure it is stored as one file.
     joblib.dump(features, output_feature_file_name, compress=1)
+
+
+def try_extract_one(input_mp3_file_name, output_feature_file_name):
+    try:
+        extract_one(input_mp3_file_name, output_feature_file_name)
+    except Exception as e:
+        print(e)
+        return False
+    else:
+        return True
