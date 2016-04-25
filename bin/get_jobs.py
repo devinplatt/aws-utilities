@@ -52,9 +52,9 @@ def process(s3, s3_bucket_name, s3_input_key, s3_output_key, work_dir, command):
     print("Downloading %s from s3://%s/%s ..." % (local_input_path, s3_bucket_name, s3_input_key))
     key = s3Bucket.get_key(s3_input_key)
     key.get_contents_to_filename(local_input_path)
-    success = try_extract_one(input_mp3_file_name, output_feature_file_name)
+    success = try_extract_one(local_input_path, local_output_path)
     if not success:
-        print('Falied to extract features for: {}'.format(input_mp3_file_name))
+        print('Falied to extract features for: {}'.format(local_input_path))
         return False
     print("Uploading %s to s3://%s/%s ..." % (local_output_path, s3_bucket_name, s3_output_key))
     key = Key(s3Bucket)
