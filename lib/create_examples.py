@@ -70,20 +70,20 @@ def mel_to_example(mel, label,
     return X_combined, y_scaled, parameters
 
 
-# Take an input mp3 file name, and extract mel features, saving the resulting
+# Take an input mel file name, and extract mel features, saving the resulting
 # feature file.
-def extract_one(input_mel_file_name, output_examples_file_name):
+def create_one(input_mel_file_name, output_examples_file_name, label):
     # Load audio.
     mel = joblib.load(input_mel_file_name)
-    examples, labels, parameters = mel_to_example(mel, labels)
+    examples, labels, parameters = mel_to_example(mel, label)
     # Using compress=1 to make sure it is stored as one file.
     joblib.dump((examples, labels, parameters), output_feature_file_name,
                 compress=1)
 
 
-def try_extract_one(input_mp3_file_name, output_feature_file_name):
+def try_create_one(input_mp3_file_name, output_feature_file_name, label):
     try:
-        extract_one(input_mp3_file_name, output_feature_file_name)
+        create_one(input_mp3_file_name, output_feature_file_name, label)
     except Exception as e:
         print(e)
         return False

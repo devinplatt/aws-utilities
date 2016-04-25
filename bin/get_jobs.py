@@ -31,13 +31,9 @@ def get_jobs(work_dir, sqs_queue_name, aws_region):
                 print(m.get_body())
                 job = json.loads(m.get_body())
                 print("Message received: '%s'" % job)
-                action = job[0]
+                action = job['action']
                 if action in ['extract_features', 'create_examples']:
-                    s3_bucket_name = job[1]
-                    s3_input_key = job[2]
-                    s3_output_key = job[3]
-                    status = process(s3, s3_bucket_name, s3_input_key,
-                                     s3_output_key, work_dir, action)
+                    status = process(s3, job, work_dir)
                     if (status):
                         print("Message processed correctly ...")
                         m.delete()
@@ -46,7 +42,11 @@ def get_jobs(work_dir, sqs_queue_name, aws_region):
                     print('Falied to find option for action: {}'.format(action))
 
 
-def process(s3, s3_bucket_name, s3_input_key, s3_output_key, work_dir, action):
+def process(s3, job, work_dir):
+    action = job['action']
+    s3_bucket_name = job['s3_bucket_name']
+    s3_input_key = job['s3_input_key']
+    s3_output_key = job['s3_output_key']
     s3Bucket = s3.get_bucket(s3_bucket_name)
     local_input_path = os.path.join(work_dir, s3_input_key)
     local_output_path = os.path.join(work_dir, s3_output_key)
@@ -59,8 +59,9 @@ def process(s3, s3_bucket_name, s3_input_key, s3_output_key, work_dir, action):
         success = extract_features.try_extract_one(local_input_path,
                                                    local_output_path)
     elif action == 'create_examples':
-        success = create_examples.try_extract_one(local_input_path,
-                                                  local_output_path)
+        success = create_examples.try_create_one(local_input_path,
+                                                 local_output_path,
+                                                 job['label'])
     else:
         print('Falied to find function for action: {}'.format(action))
         success = False
