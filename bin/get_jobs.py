@@ -42,6 +42,15 @@ def get_jobs(work_dir, sqs_queue_name, aws_region):
                     print('Falied to find option for action: {}'.format(action))
 
 
+# Once the job is done (successful or not), clean up local storage.
+# Note that this would not be robust to failure of a process if get_jobs.py
+# were to be handeled by a process manager.
+def clean_up(file_names):
+    for file_name in file_names:
+        if os.path.exists(file_name):
+            os.remove(file_name)
+
+
 def process(s3, job, work_dir):
     action = job['action']
     s3_bucket_name = job['s3_bucket_name']
@@ -67,12 +76,13 @@ def process(s3, job, work_dir):
         success = False
     if not success:
         print('Falied to extract features for: {}'.format(local_input_path))
+        clean_up([local_input_path, local_output_path])
         return False
     print("Uploading %s to s3://%s/%s ..." % (local_output_path, s3_bucket_name, s3_output_key))
     key = Key(s3Bucket)
     key.key = s3_output_key
     key.set_contents_from_filename(local_output_path)
-    # TODO: delete local mp3 file!
+    clean_up([local_input_path, local_output_path])
     return True
 
 
