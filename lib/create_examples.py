@@ -89,3 +89,24 @@ def try_create_one(input_mp3_file_name, output_feature_file_name, label):
         return False
     else:
         return True
+
+
+# Take an input mel file name, and extract mel features, saving the resulting
+# feature file.
+def create_stacked_features(input_mel_file_name, output_examples_file_name):
+    # Load audio.
+    mel = joblib.load(input_mel_file_name)
+    examples, labels, parameters = mel_to_example(mel, 'dummy_label')
+    # Using compress=1 to make sure it is stored as one file.
+    joblib.dump((examples, parameters), output_examples_file_name,
+                compress=1)
+
+
+def try_create_stacked_features(input_mp3_file_name, output_feature_file_name):
+    try:
+        create_stacked_features(input_mp3_file_name, output_feature_file_name)
+    except Exception as e:
+        print(e)
+        return False
+    else:
+        return True
