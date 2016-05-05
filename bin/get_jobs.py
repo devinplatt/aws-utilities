@@ -68,8 +68,8 @@ def process(s3, job, work_dir):
         success = extract_features.try_extract_one(local_input_path,
                                                    local_output_path)
     elif action == 'create_examples':
-        success = try_create_stacked_features.try_create_one(local_input_path,
-                                                             local_output_path)
+        success = create_examples.try_create_stacked_features(local_input_path,
+                                                              local_output_path)
     else:
         print('Falied to find function for action: {}'.format(action))
         success = False
