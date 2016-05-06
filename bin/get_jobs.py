@@ -63,7 +63,12 @@ def process(s3, job, work_dir):
                        os.path.dirname(local_output_path)])
     print("Downloading %s from s3://%s/%s ..." % (local_input_path, s3_bucket_name, s3_input_key))
     key = s3Bucket.get_key(s3_input_key)
-    key.get_contents_to_filename(local_input_path)
+    try:
+        key.get_contents_to_filename(local_input_path)
+    except Exception as e:
+        print(e)
+        print('Failed to download {} from {}.'.format(s3_input_key, s3_bucket_name))
+        return False
     if action == 'extract_features':
         success = extract_features.try_extract_one(local_input_path,
                                                    local_output_path)
@@ -80,9 +85,14 @@ def process(s3, job, work_dir):
     print("Uploading %s to s3://%s/%s ..." % (local_output_path, s3_bucket_name, s3_output_key))
     key = Key(s3Bucket)
     key.key = s3_output_key
-    key.set_contents_from_filename(local_output_path)
+    upload_success = True
+    try:
+        key.set_contents_from_filename(local_output_path)
+    except Exception as e:
+        print(e)
+        upload_success = False
     clean_up([local_input_path, local_output_path])
-    return True
+    return upload_success
 
 
 def signal_handler(signal, frame):
